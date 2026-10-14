@@ -1,0 +1,187 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="theme-color" content="#f5f3eb">
+    <meta name="description" content="A private, local-first notebook for notes, ideas, and the connections between them.">
+    <title>Notes — a personal notebook</title>
+    <link rel="icon" href="./favicon.svg" type="image/svg+xml">
+    <link rel="stylesheet" href="./vendor/highlight-github.min.css">
+    <link rel="stylesheet" href="./styles.css">
+    <script type="module" src="./src/app.mjs"></script>
+  </head>
+  <body>
+    <svg class="icon-library" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+      <symbol id="icon-notebook" viewBox="0 0 24 24">
+        <path d="M6.5 4.5h12v15h-12zM4 7h2.5m-2.5 5h2.5m-2.5 5h2.5M10 8h5m-5 4h5m-5 4h3"/>
+      </symbol>
+      <symbol id="icon-plus" viewBox="0 0 24 24">
+        <path d="M12 5v14M5 12h14"/>
+      </symbol>
+      <symbol id="icon-search" viewBox="0 0 24 24">
+        <circle cx="10.8" cy="10.8" r="6.3"/>
+        <path d="m15.5 15.5 4 4"/>
+      </symbol>
+      <symbol id="icon-arrow-left" viewBox="0 0 24 24">
+        <path d="m10 5-7 7 7 7M4 12h16"/>
+      </symbol>
+      <symbol id="icon-trash" viewBox="0 0 24 24">
+        <path d="M4.5 7h15M9 7V4.5h6V7m-8.5 0 1 13h9l1-13M10 10v6m4-6v6"/>
+      </symbol>
+      <symbol id="icon-spark" viewBox="0 0 24 24">
+        <path d="m12 3 1.5 6.5L20 12l-6.5 1.5L12 20l-1.5-6.5L4 12l6.5-2.5L12 3Z"/>
+      </symbol>
+      <symbol id="icon-link" viewBox="0 0 24 24">
+        <path d="m9.5 14.5 5-5m-7.5 8H6a4 4 0 0 1 0-8h3m6-3h3a4 4 0 0 1 0 8h-1"/>
+      </symbol>
+      <symbol id="icon-tag" viewBox="0 0 24 24">
+        <path d="M20 13.5 13.5 20 4 10.5V4h6.5L20 13.5Z"/>
+        <circle cx="8" cy="8" r="1.2"/>
+      </symbol>
+      <symbol id="icon-close" viewBox="0 0 24 24">
+        <path d="m6 6 12 12M18 6 6 18"/>
+      </symbol>
+      <symbol id="icon-check" viewBox="0 0 24 24">
+        <path d="m5 12 4 4L19 6"/>
+      </symbol>
+      <symbol id="icon-alert" viewBox="0 0 24 24">
+        <path d="M12 3 2.8 20h18.4L12 3Z"/>
+        <path d="M12 9v5m0 3h.01"/>
+      </symbol>
+    </svg>
+
+    <div class="app-shell" id="app-shell">
+      <div class="storage-alert" id="storage-alert" role="alert" hidden>
+        <svg class="icon"><use href="#icon-alert"></use></svg>
+        <p id="storage-alert-message"></p>
+        <button class="text-button" id="retry-storage-button" type="button">Try again</button>
+      </div>
+
+      <aside class="sidebar" aria-label="Notebook navigation">
+        <a class="brand" href="./" aria-label="Notes home">
+          <span class="brand-mark"><svg class="icon"><use href="#icon-notebook"></use></svg></span>
+          <span>Notes</span>
+        </a>
+
+        <button class="new-note-button" id="new-note-button" type="button">
+          <svg class="icon"><use href="#icon-plus"></use></svg>
+          <span>New note</span>
+        </button>
+
+        <nav class="library-nav" aria-label="Library">
+          <p class="sidebar-label">Library</p>
+          <button class="library-link is-active" id="all-notes-button" type="button" aria-current="page">
+            <svg class="icon"><use href="#icon-notebook"></use></svg>
+            <span>All notes</span>
+            <span class="nav-count" id="all-notes-count">0</span>
+          </button>
+        </nav>
+
+        <section class="tag-section" aria-labelledby="tag-section-title">
+          <p class="sidebar-label" id="tag-section-title">Tags</p>
+          <div class="tag-filter-list" id="tag-filter-list"></div>
+          <p class="tag-empty-note" id="tag-empty-note">Tags appear here as you add them.</p>
+        </section>
+
+        <div class="sidebar-footer">
+          <span class="local-indicator" aria-hidden="true"></span>
+          <span id="offline-status" role="status" aria-live="polite">Stored on this device</span>
+        </div>
+      </aside>
+
+      <section class="note-list-panel" aria-labelledby="collection-title">
+        <header class="list-header">
+          <div class="list-title-row">
+            <h1 id="collection-title">All notes</h1>
+            <span class="collection-count" id="collection-count">0</span>
+          </div>
+          <label class="search-field">
+            <svg class="icon"><use href="#icon-search"></use></svg>
+            <span class="visually-hidden">Search notes</span>
+            <input id="search-input" type="search" placeholder="Search your notes" autocomplete="off">
+            <kbd aria-hidden="true">/</kbd>
+          </label>
+          <div class="mobile-tag-filters" id="mobile-tag-filters" aria-label="Filter by tag"></div>
+        </header>
+        <div class="note-list" id="note-list" role="list" aria-label="Notes"></div>
+        <div class="list-empty" id="list-empty" hidden></div>
+      </section>
+
+      <main class="editor-panel" id="editor-panel">
+        <section class="empty-editor" id="empty-editor">
+          <h2>A place for the things worth keeping.</h2>
+          <p>Start with a thought, a question, or a line you want to remember.</p>
+          <button class="primary-button" id="empty-create-button" type="button">
+            <svg class="icon"><use href="#icon-plus"></use></svg>
+            Create your first note
+          </button>
+          <span class="empty-private-note">Your notes stay in this browser.</span>
+        </section>
+
+        <section class="note-editor" id="note-editor" hidden>
+          <header class="editor-header">
+            <button class="back-to-list" id="back-to-list-button" type="button">
+              <svg class="icon"><use href="#icon-arrow-left"></use></svg>
+              <span>All notes</span>
+            </button>
+            <div class="editor-heading">
+              <input class="note-title-input" id="title-input" type="text" placeholder="Untitled note" maxlength="160" aria-label="Note title">
+              <label class="tags-field">
+                <svg class="icon"><use href="#icon-tag"></use></svg>
+                <span class="visually-hidden">Tags, separated by commas</span>
+                <input id="tags-input" type="text" placeholder="Add tags, separated by commas" autocomplete="off">
+              </label>
+            </div>
+            <div class="editor-tools">
+              <div class="save-status" id="save-status" role="status" aria-live="polite">
+                <span class="save-status-dot" aria-hidden="true"></span>
+                <span id="save-status-text">Saved locally</span>
+              </div>
+              <div class="editor-actions">
+                <div class="view-switch" role="group" aria-label="Note view">
+                  <button class="view-button is-active" id="write-button" type="button" aria-pressed="true">Write</button>
+                  <button class="view-button" id="preview-button" type="button" aria-pressed="false">Preview</button>
+                </div>
+                <button class="icon-button delete-button" id="delete-note-button" type="button" aria-label="Delete note" title="Delete note">
+                  <svg class="icon"><use href="#icon-trash"></use></svg>
+                </button>
+              </div>
+            </div>
+            <div class="delete-confirmation" id="delete-confirmation" role="group" aria-label="Confirm note deletion" hidden>
+              <span>Delete this note? This cannot be undone.</span>
+              <button class="text-button" id="cancel-delete-button" type="button">Keep note</button>
+              <button class="text-button destructive-text-button" id="confirm-delete-button" type="button">Delete</button>
+            </div>
+          </header>
+
+          <div class="editor-scroll-area">
+            <div class="editor-main-grid">
+              <div class="writing-column">
+                <div class="writing-surface" id="writing-surface">
+                  <label class="visually-hidden" for="markdown-input">Markdown note content</label>
+                  <textarea id="markdown-input" spellcheck="true" placeholder="Begin anywhere. Type [[ to link another note." aria-describedby="markdown-help" aria-controls="link-suggestions" aria-expanded="false"></textarea>
+                  <div class="link-suggestions" id="link-suggestions" role="listbox" aria-label="Link to a note" hidden></div>
+                  <p class="editor-help" id="markdown-help">Markdown supported · Type <kbd>[[</kbd> to link a note</p>
+                </div>
+                <article class="markdown-preview" id="markdown-preview" aria-label="Rendered note" hidden></article>
+              </div>
+              <aside class="connections-panel" id="connections-panel" aria-label="Note connections">
+                <section class="connection-section">
+                  <h2>Links in this note</h2>
+                  <div id="outgoing-links"></div>
+                </section>
+                <section class="connection-section">
+                  <h2>Links to this note</h2>
+                  <div id="backlinks"></div>
+                </section>
+              </aside>
+            </div>
+          </div>
+        </section>
+      </main>
+    </div>
+
+    <noscript>This notebook needs JavaScript to edit and save notes locally.</noscript>
+  </body>
+</html>

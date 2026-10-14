@@ -1,0 +1,17 @@
+{
+  "detector": {
+    "ignoreRules": [],
+    "ignoreFiles": [],
+    "ignoreValues": [
+      {
+        "rule": "cream-palette",
+        "value": "*",
+        "files": [
+          "index.html"
+        ],
+        "createdAt": "2026-10-14T20:15:14.945Z",
+        "reason": "User selected the Writing Desk direction with a warm light ground."
+      }
+    ]
+  }
+}
